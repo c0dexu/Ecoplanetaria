@@ -23,6 +23,10 @@ public class Vector2D {
         return new Vector2D(k * this.x, k * this.y);
     }
 
+    public Vector2D div(float k){
+        return new Vector2D( this.x / k,  this.y / k);
+    }
+
     public static float dot(Vector2D v1, Vector2D v2){
         return v1.x * v2.x + v1.y * v2.y;
     }

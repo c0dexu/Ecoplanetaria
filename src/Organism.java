@@ -110,11 +110,18 @@ public class Organism {
 
     // comportamentul organismului
 
-    // metoda in care organismul se indreapta spre un punct(target)
-    public void steering_seek(Vector2D target){
+    // metoda in care organismul se indreapta spre / evita un punct(target)
+    public void steering_seek(Vector2D target, boolean canAvoid){
 
-        Vector2D vector_distance = Vector2D.sub(target, this.position); // calculam vectorul distanta dintre
-                                                                        // punctul destinatie si pozitia organismului
+        Vector2D vector_distance;
+        // acest lucru il face pe organism sa evite/mearge spre target
+        if (!canAvoid){
+            vector_distance = Vector2D.sub(target, this.position);
+        }
+        else{
+            vector_distance = Vector2D.sub(this.position, target);
+        }
+
 
         Vector2D desired_impulse = vector_distance.unit().mul(maxVelocity); // calculam impulsul destinatie
 
@@ -122,6 +129,13 @@ public class Organism {
 
         // calculam noua forta
         force = Vector2D.add(force, steer);
+
+        // cu cat organismul e aproape de target, cu atat incetineste
+        force = force.mul(vector_distance.magnitude() * .01f);
+
+    }
+
+    public void steer_flee_arrival(Vector2D target){
 
     }
 }
