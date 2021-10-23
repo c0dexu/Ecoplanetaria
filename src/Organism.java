@@ -1,7 +1,7 @@
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.Random.*;
+
 
 public class Organism {
     public static ArrayList<Organism> organisms = new ArrayList<>(); // container ce retine toate organismele din ecosistem
@@ -14,6 +14,16 @@ public class Organism {
     public Color color; // culoarea organismului
     public ArrayList<Point> points; // punctele ce formeaza organismul(un poligon)
     public int numberOfPoints; // determina numarul de puncte ale poligonului
+
+    // starile organismului(se misca, doarme, mananca)
+
+    enum OrgStates{
+        stateIdle,
+        stateMove,
+        stateEat,
+        stateBuild,
+        stateSeekHome
+    }
 
     // scalari ce determina masa, orientarea si sanatatea organismului
     float mass;
@@ -85,6 +95,15 @@ public class Organism {
 
     }
 
+    public void rotate(){
+        // aici se actualizeaza toate punctele poligonului
+
+    }
+
+    public void setColor(int r, int g, int b){
+        color = new Color(r, g, b);
+    }
+
     // functie ce creeaza un nou organism, mostenind proprietatile organismului vechi.
     // simuleaza reproducerea asexuala
     public void inherit() throws CloneNotSupportedException {
@@ -105,7 +124,8 @@ public class Organism {
 
     public void draw(Graphics g){
         Graphics2D g2d = (Graphics2D) g;
-
+        g2d.setColor(color);
+        // g2d.drawPolygon(points);
     }
 
     // comportamentul organismului
@@ -114,7 +134,7 @@ public class Organism {
     public void steering_seek(Vector2D target, boolean canAvoid){
 
         Vector2D vector_distance;
-        // acest lucru il face pe organism sa evite/mearge spre target
+        // acest lucru il face pe organism sa evite/mearga spre target
         if (!canAvoid){
             vector_distance = Vector2D.sub(target, this.position);
         }
@@ -135,7 +155,13 @@ public class Organism {
 
     }
 
-    public void steer_flee_arrival(Vector2D target){
+    // noi comportamente
+
+    // metoda in care organismul se indreapta spre altul
+    // el va ajunge in "fata" altui organism
+    public void steering_face_organism(Organism other){
 
     }
+
+
 }
