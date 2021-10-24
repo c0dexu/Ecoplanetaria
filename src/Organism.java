@@ -12,18 +12,26 @@ public class Organism {
     public Vector2D velocity;
     public Vector2D force; // forta ce actioneaza asupra organismului(sursa de locomotie)
     public Color color; // culoarea organismului
-    public ArrayList<Point> points; // punctele ce formeaza organismul(un poligon)
+    // punctele ce formeaza organismul(un poligon)
+    public int[] xPoints;
+    public int[] yPoints;
     public int numberOfPoints; // determina numarul de puncte ale poligonului
+    public float friction = .75f;
+
 
     // starile organismului(se misca, doarme, mananca)
 
+
+
     enum OrgStates{
         stateIdle,
-        stateMove,
+        stateSeek,
         stateEat,
         stateBuild,
         stateSeekHome
     }
+
+    OrgStates currentState = OrgStates.stateIdle;
 
     // scalari ce determina masa, orientarea si sanatatea organismului
     float mass;
@@ -48,14 +56,35 @@ public class Organism {
 
     // metoda ce actualizeaza viteza si pozitia organismului
     public void update(float dt){
-        velocity = Vector2D.add(velocity, (force.mul(1/mass)).mul(dt));
+
+        switch (currentState){
+            case stateIdle:
+                force = new Vector2D();
+                velocity = velocity.mul(friction);
+                break;
+
+            case stateSeek:
+                steering_seek(new Vector2D(13, 234), false);
+                break;
+
+
+        }
+
+        if (life > 0){
+            velocity = Vector2D.add(velocity, (force.mul(1/mass)).mul(dt));
+        }
         position = Vector2D.add(position, velocity.mul(dt));
+    }
+
+    public void setCurrentState(OrgStates state){
+        currentState = state;
     }
 
     public void initPolygon(float maxMass){
 
-        this.points = new ArrayList<>();
         numberOfPoints = ThreadLocalRandom.current().nextInt(3, 7); // nr de puncte va fi intre 3 si 6
+        this.xPoints = new int[numberOfPoints];
+        this.yPoints = new int[numberOfPoints];
         int i;
         float theta = 0.0f; // fiecare punct este rotit cu acest unghi
         float dtheta = (2 * PI) / numberOfPoints;
@@ -71,7 +100,8 @@ public class Organism {
             float xpoint = (float) (xcenter + distanceFromOrigin * Math.cos((double) theta));
             float ypoint = (float) (ycenter + distanceFromOrigin * Math.sin((double) theta));
 
-            this.points.add(new Point((int)xpoint, (int)ypoint));
+            xPoints[i] = (int)xpoint;
+            yPoints[i] = (int)ypoint;
 
             theta += dtheta; // actualizam unghiul de rotire al urmatorului punct
 
@@ -95,10 +125,36 @@ public class Organism {
 
     }
 
-    public void rotate(){
-        // aici se actualizeaza toate punctele poligonului
+
+    // aici se actualizeaza toate punctele poligonului prin rotatie
+    public void rotate(float dtheta){
+        float xcenter = position.x;
+        float ycenter = position.y;
+
+        int i;
+
+        for(i = 0; i < numberOfPoints; i++){
+
+            angle += dtheta;
+
+            // pozitia relativa a punctului fata de centru
+            int dx = xPoints[i] - (int) xcenter;
+            int dy = yPoints[i] - (int) ycenter;
+
+            // rotim vectorul pozitie relativ
+            dx = (int) (dx * Math.cos(angle) - dy * Math.sin(angle));
+            dy = (int) (dx * Math.sin(angle) + dy * Math.cos(angle));
+
+            // setam noua pozitie a punctului
+            xPoints[i] = (int) (xcenter + dx);
+            yPoints[i] = (int) (ycenter + dy);
+
+
+        }
+
 
     }
+
 
     public void setColor(int r, int g, int b){
         color = new Color(r, g, b);
@@ -125,7 +181,7 @@ public class Organism {
     public void draw(Graphics g){
         Graphics2D g2d = (Graphics2D) g;
         g2d.setColor(color);
-        // g2d.drawPolygon(points);
+        g2d.drawPolygon(xPoints, yPoints, numberOfPoints);
     }
 
     // comportamentul organismului
@@ -155,13 +211,6 @@ public class Organism {
 
     }
 
-    // noi comportamente
-
-    // metoda in care organismul se indreapta spre altul
-    // el va ajunge in "fata" altui organism
-    public void steering_face_organism(Organism other){
-
-    }
 
 
 }
